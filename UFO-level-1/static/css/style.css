@@ -1,0 +1,23 @@
+.UFOTitle {
+    color: black;
+    font-family: "Brush Script MT", cursive; 
+    font-size: 48px; 
+    text-align: center;
+    vertical-align: middle;
+}
+
+body {
+    background-image: url("../images/starfield.jpg");
+}
+
+.right {
+    position: absolute;
+    right: 0px;
+}
+
+div.mynav {
+    height: 100px;
+}
+img.mynav {
+    height: 85px;
+}
