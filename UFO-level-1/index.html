@@ -10,10 +10,10 @@
     </head>
     <body>
          <nav class="navbar navbar-expand-lg navbar-dark bg-primary mynav">
-            <div class="mynav">
-                 <h4 class="UFOTitle"><a class="UFOTitle nav-link" href="#">Search for The Truth</a>
+            <div id="UFOHeader" class="mynav">
+                 <h1 class="UFOTitle"><a class="UFOTitle nav-link" href="#">Search for The Truth</a>
                     <span class="right"><img class="mynav" src="static/images/TheTruthIsOutThere.jpg"></span>
-                </h4>                
+                </h1>                
             </div>    
           </nav>
           <main>
@@ -27,7 +27,7 @@
                             <div class="panel panel-default">
                               <div class="panel-heading">Filter Search</div>
                               <div class="panel-body">
-                                <form>
+                                <form id="form">
                                   <div class="form-group">
                                     <ul class="list-group" id="filters">
                                       <li class="filter list-group-item">
@@ -56,10 +56,7 @@
                                   <th class="table-head">Comments</th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <tr>
-                                  <td>Test</td>
-                                </tr>
+                              <tbody class="table-data">
                               </tbody>
                             </table>
                           </div>
