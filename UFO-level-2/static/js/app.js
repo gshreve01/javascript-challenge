@@ -7,6 +7,8 @@ var selectedCity = "";
 var selectedCountry = "";
 var itemCollectionCheck = [];
 
+var formIsValid = true;
+
 
 // Filtering
 //----------------------------------------------------
@@ -27,11 +29,11 @@ function filterEvents(event) {
     if (result && selectedState) {
         result = StateFilter(event);
     }
-    
+
     if (result && selectedCity) {
         result = CityFilter(event);
     }
-    
+
     if (result && selectedCountry) {
         result = CountryFilter(event);
     }
@@ -69,9 +71,64 @@ function CountryFilter(event) {
 
 // Validation
 //------------------------------------------
-function IsValidDate(datetime) {
+
+function CheckFormValidity() {
+    formIsValid = CheckDateIsValid();
+    console.log("formIsValid", formIsValid);
+
+    if (formIsValid) {
+        button.classed("invalid", false);
+
+    }
+    else {
+        console.log("Setting button to invalid");
+        button.classed("invalid", true);
+    }
+}
+
+function CheckDateIsValid() {
+    selectedDate = dateInput.property("value");
+    console.log("CheckDateIsValid", selectedDate);
+    if (!IsValidDate(selectedDate)) {
+        alert(`Provided date ${selectedDate} is not valid.  Please correct the value.`);
+        selectedDate = "";
+        return false;
+    }
     return true;
 }
+
+// Date Validation
+// The below function was copied from:
+// https://stackoverflow.com/questions/6177975/how-to-validate-date-with-format-mm-dd-yyyy-in-javascript/49178339
+//------------------------------------------------------------------------------------------
+
+
+
+function IsValidDate(dateString) {
+    // First check for the pattern
+    if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
+        return false;
+
+    // Parse the date parts to integers
+    var parts = dateString.split("/");
+    var day = parseInt(parts[1], 10);
+    var month = parseInt(parts[0], 10);
+    var year = parseInt(parts[2], 10);
+
+    // Check the ranges of month and year
+    if (year < 1000 || year > 3000 || month == 0 || month > 12)
+        return false;
+
+    var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    // Adjust for leap years
+    if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+        monthLength[1] = 29;
+
+    // Check the range of the day
+    return day > 0 && day <= monthLength[month - 1];
+};
+
 
 //------------------------------------------
 
@@ -99,12 +156,7 @@ var dateInput = d3.select("#datetime");
 console.log("dateInput", dateInput);
 dateInput.on("change", function () {
     console.log("Entering dateInput on change event");
-    selectedDate = dateInput.property("value");
-    console.log("selectedDate", selectedDate);
-    if (!IsValidDate(selectedDate)) {
-        alert(`Provided date ${selectedDate} is not valid.  Value will be cleared.`);
-        selectedDate = "";
-    }
+    CheckFormValidity();
 });
 
 // Shape
@@ -112,8 +164,8 @@ var shapeSelect = d3.select("#shape");
 shapeSelect.on("change", function () {
     console.log("Entering shapeSelect on change event");
     selectedShape = Array.from(this.options) // create an array from the htmlCollection
-    .filter(function(option) { return option.selected })  // filter for selected values
-    .map(function(option) { return option.value; }); // return a new array with the selected values
+        .filter(function (option) { return option.selected })  // filter for selected values
+        .map(function (option) { return option.value; }); // return a new array with the selected values
     console.log("selectedShape", selectedShape);
 });
 
@@ -133,8 +185,8 @@ var uniqueShapes = allShapes.filter(function (shape) {
 console.log("uniqueShapes", uniqueShapes);
 
 var options = shapeSelect.selectAll("option").data(uniqueShapes).enter().append("option")
-    .text(function(d) {return d; })
-    .attr("value", function(d) { return d});
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d });
 
 console.log("shapeSelect", shapeSelect);
 
@@ -165,8 +217,8 @@ uniqueStates.unshift("");
 console.log("uniqueStates", uniqueStates);
 
 options = stateSelect.selectAll("option").data(uniqueStates).enter().append("option")
-    .text(function(d) {return d; })
-    .attr("value", function(d) { return d});
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d });
 
 console.log("stateSelect", stateSelect);
 
@@ -179,7 +231,7 @@ citySelect.on("change", function () {
 });
 
 // Find the distinct cities for the drop down
-var allCities = tableData.map(function(event) { return {city: event.city, state: event.state,}});
+var allCities = tableData.map(function (event) { return { city: event.city, state: event.state, } });
 console.log("allCities", allCities);
 itemCollectionCheck = [];
 var uniqueCities = allCities.filter(function (cityState) {
@@ -218,8 +270,8 @@ uniqueCountries.unshift("");
 console.log("uniqueCountries", uniqueCountries);
 
 options = countrySelect.selectAll("option").data(uniqueCountries).enter().append("option")
-    .text(function(d) {return d; })
-    .attr("value", function(d) { return d});
+    .text(function (d) { return d; })
+    .attr("value", function (d) { return d });
 
 console.log("countrySelect", countrySelect);
 
@@ -236,8 +288,8 @@ function LoadCityDropDownOptions(state) {
     console.log("filteredCities", filteredCities);
     citySelect.selectAll("option").remove();
     options = citySelect.selectAll("option").data(filteredCities).enter().append("option")
-    .text(function(d) {return d.city; })
-    .attr("value", function(d) { return d.city});
+        .text(function (d) { return d.city; })
+        .attr("value", function (d) { return d.city });
 }
 
 function LoadData(events) {
@@ -268,9 +320,14 @@ function runSearch(keepFormData) {
 
     var filteredEvents = tableData;
 
-    console.log("selectedDate", selectedDate);
-
-    filteredEvents = filteredEvents.filter(filterEvents);
+    // Verify form is valid
+    if (formIsValid) {
+        filteredEvents = filteredEvents.filter(filterEvents);
+    }
+    else {
+        console.log("Form is invalid. Can't Search", selectedDate);
+        filteredEvents = [];
+    }
 
     LoadData(filteredEvents);
 }
