@@ -129,7 +129,36 @@ function IsValidDate(dateString) {
     return day > 0 && day <= monthLength[month - 1];
 };
 
+function LookupState(stateAbbr) {
+    stateDictionary = {stateAbbr : stateAbbr};
+    stateDictionary.state = all_states[stateAbbr.toUpperCase()];
+    console.log("stateDictionary", stateDictionary);
+    return stateDictionary;
+}
 
+//------------------------------------------
+// Sort functions
+function StateSort(a, b) {
+    // console.log("a,b", a, b);
+    var result = 0;
+    if (a.state < b.state) 
+        result = -1;
+    else if (a.state > b.state)
+        result = 1;
+    // console.log("result", result);
+    return result;
+}
+
+function CitySort(a, b) {
+    // console.log("a,b", a, b);
+    var result = 0;
+    if (a.city < b.city) 
+        result = -1;
+    else if (a.city > b.city)
+        result = 1;
+    // console.log("result", result);
+    return result;
+}
 //------------------------------------------
 
 
@@ -213,12 +242,16 @@ var uniqueStates = allStates.filter(function (state) {
         return false;
     }
 });
-uniqueStates.unshift("");
-console.log("uniqueStates", uniqueStates);
 
-options = stateSelect.selectAll("option").data(uniqueStates).enter().append("option")
-    .text(function (d) { return d; })
-    .attr("value", function (d) { return d });
+uniqueStatesWithName = uniqueStates.map(LookupState);
+uniqueStatesWithName.unshift({stateAbbr: "", state: ""});
+
+uniqueStatesWithName = uniqueStatesWithName.sort(StateSort);
+console.log("uniqueStatesWithName", uniqueStatesWithName);
+
+options = stateSelect.selectAll("option").data(uniqueStatesWithName).enter().append("option")
+    .text(function (d) { return d.state; })
+    .attr("value", function (d) { return d.stateAbbr });
 
 console.log("stateSelect", stateSelect);
 
@@ -243,6 +276,7 @@ var uniqueCities = allCities.filter(function (cityState) {
         return true;
     }
 });
+
 console.log("uniqueCities", uniqueCities);
 
 // Country
@@ -285,6 +319,7 @@ function LoadCityDropDownOptions(state) {
     console.log("state", state);
     var filteredCities = uniqueCities.filter(cityState => cityState.state == state);
     filteredCities.unshift("");
+    filteredCities = filteredCities.sort(CitySort);
     console.log("filteredCities", filteredCities);
     citySelect.selectAll("option").remove();
     options = citySelect.selectAll("option").data(filteredCities).enter().append("option")
